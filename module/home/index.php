@@ -13,3 +13,9 @@
 <p>
     Maecenas scelerisque elit purus, non viverra sapien sollicitudin vitae. Mauris quis nibh pellentesque, dapibus purus vel, finibus elit. Integer sem diam, bibendum id odio sit amet, facilisis euismod nunc. Etiam sit amet congue quam, id tempor massa. Nam lobortis, lectus a condimentum tincidunt, massa purus sagittis nibh, venenatis sagittis metus velit non ex. Donec pulvinar rhoncus libero, sit amet lobortis mi fringilla malesuada. Curabitur convallis justo quis pharetra auctor. Cras condimentum, lectus ac tempor maximus, libero ante tincidunt est, ac scelerisque dui turpis ac diam. Nullam accumsan congue gravida. Fusce justo ex, congue vel mollis vitae, convallis ut ex.
 </p>
+
+<?php
+
+account::getUserData();
+
+?>

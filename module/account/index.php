@@ -12,14 +12,20 @@ if (isset($_GET['view'])) {
     //         return include($path);
     //     }
     // }
+    
 
     if (!empty($_GET['view'])) { 
-        $path = __DIR__ . DIRECTORY_SEPARATOR . $_GET['view'] . '.php';
+        $view = $_GET['view'];
+        if ($view == 'login' && account::isUserLoggedIn()) {
+            header('Location: ?module=account&view=account');
+            exit;
+        }
+        $path = __DIR__ . DIRECTORY_SEPARATOR . $view . '.php';
         
         if (!file_exists($path)) { 
             echo 'ERROR HET BESTAND IS NIET GEVONDEN';
         } else { 
-            require($path);
+            require ($path);
         }
 
     } else { 

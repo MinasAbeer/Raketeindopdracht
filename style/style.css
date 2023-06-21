@@ -67,13 +67,14 @@ body {
 
 input[type=text],
 input[type=email],
+input[type=password],
 textarea {
     width: 90%;
     padding: 10px;
     margin: 10px 0;
     border: none;
     border-radius: 5px;
-
+    resize: vertical;
 }
 
 input[type=submit] { 

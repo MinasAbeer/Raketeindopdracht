@@ -38,27 +38,16 @@ class account
                 $_SESSION['user'] = [];
                 $_SESSION['user']['user_id'] = $user['id'];
                 $_SESSION['user']['username'] = $user['username'];
-                $_SESSION['user']['firstname'] = $user['firstname'];
-                $_SESSION['user']['lastname'] = $user['lastname'];
-                $_SESSION['user']['birthday'] = $user['birthday'];
-
-                echo "<h1>Succesvol ingelogd!</h1>";
-
-                echo "Welkom " . $_SESSION['user']['firstname'] . " " . $_SESSION['user']['lastname'] . "! <br>";
-
-                echo "Uw geboortedatum is: " . $_SESSION['user']['birthday'] . '<br> <br>';
-
-                echo '<a href="?module=account&view=logout"><button>Uitloggen</button></a>';
                 
                 return true;    
             } else {
-                echo "Wachtwoord is onjuist! Klik <a href='index.php'>hier</a> om terug te gaan naar de inlogpagina.";
-                exit;
+                echo "Wachtwoord is onjuist!";
             }
         } else {
-            echo "Gebruikersnaam is onjuist! Klik <a href='index.php'> hier </a> om terug te gaan naar de inlogpagina.";
-            exit;
+            echo "Gebruikersnaam is onjuist!";
+
         }
+        return false;
     }
 
     public function register ($firstname, $lastname, $birthday, $username, $password)
@@ -104,6 +93,21 @@ class account
     {
         if (isset($_SESSION['user'])) { 
             return true;
+        } else {
+            return false;
+        }
+    }
+
+    static public function getUserData()
+    {
+        if (self::isUserLoggedIn()) {
+            global $pdo;
+            $id = $_SESSION['user']['user_id'];
+            $sql = "SELECT * FROM userdata WHERE id = :id;";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['id' => $id]);
+            $user = $stmt->fetch();
+            return $user;
         } else {
             return false;
         }

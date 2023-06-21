@@ -6,16 +6,7 @@ require_once 'functions.php';
 require_once 'account.cls.php';
 
 $backend = false;
-
-if(account::isUserLoggedIn() && isset($_GET['module']))
-{
-    $backend = true;
-    $backend_path = __DIR__ . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $_GET['module'] . DIRECTORY_SEPARATOR . 'index.php';
-
-    if (!file_exists($backend_path)) { 
-        echo 'ERROR DE ADMIN BESTAND IS NIET GEVONDEN!';
-    }
-}
+$user = new Account();
 
 if (isset($_GET['module'])) { 
     if (!empty($_GET['module'])) { 
@@ -50,23 +41,30 @@ if (isset($_GET['module'])) {
                 </a>
             </div>
             <div class="navbar">
+                
                 <nav>
-                    <a href="./?module=home">Home</a>
-                    <a href="?module=teams">Teams</a>
-                    <a href="?module=contact">Contact</a>
-                    <a href="?module=account&view=login">Login</a>
+                    <?php 
+                    global $pdo;
+
+                    $sql = "SELECT * FROM module";
+                    $prep = $pdo->query($sql);
+                    $page = $quer
+
+                    if ($user->isUserLoggedIn()) {
+                        echo '<a href="?module=create_new">Create new</a>';
+                        echo '<a href="?module=edit">Edit</a>';
+                        echo '<a href="?module=account&view=logout">Logout</a>';
+                    } else {
+                        echo '<a href="?module=account&view=login">Login</a>';
+                    }
+
+                    ?>
                 </nav>
             </div>
         </header>
 
         <div class="content">
             <?php
-
-            if ($backend) {
-                echo "<div class='uitlog'>
-                        <a href='?module=account&view=logout'><button type='button'>Loguit</button></a>
-                    </div>";
-            }
             
             if (isset($path)) {
                 require $path;
@@ -80,7 +78,7 @@ if (isset($_GET['module'])) {
 
         <footer>
             <div class="footer">
-                <p><span>&#169</span> Minas Abeer 2022</p>
+                <p><span>&#169</span> Minas Abeer 2023</p>
             </div>
         </footer>
     </div> 
