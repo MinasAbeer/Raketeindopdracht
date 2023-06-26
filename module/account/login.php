@@ -16,11 +16,11 @@ $account .= '
 <form action="?module=account&view=login" method="post">
     <label for="login_username">Username</label>
         <br>
-    <input type="text" name="login_username" placeholder="Username" require>
+    <input type="text" name="login_username" placeholder="Username" class="login" require>
         <br>
     <label for="login_password">Password</label>
         <br>
-    <input type="password" name="login_password" placeholder="Password" require>
+    <input type="password" name="login_password" placeholder="Password" class="login" require>
         <br>
         <br>
     <input type="submit" name="loginbtn" value="Login">
