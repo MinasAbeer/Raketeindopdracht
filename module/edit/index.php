@@ -52,10 +52,10 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
     if (isset($_POST['nav'])) {
         echo "<form action='?module=edit' method='post'>
                 <label for='Welke'>Welke navigatie wilt u wijzigen?</label>
-                <select>";
+                <select id='Welke' name='pagina'>";
                 foreach ($fetch as $module => $pagina) {
-                    $pagina = ucfirst($pagina['pagina']);
-                    echo "<option value='$pagina'>$pagina</option>";
+                    $pagina = $pagina['pagina'];
+                    echo "<option name='pagina' value='$pagina'>$pagina</option>";
                 }
                 echo "</select>
                     <br>
@@ -78,12 +78,27 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                 <input type='submit' name='edit_logo' value='Wijzigen'>
             </form>";
     } elseif(isset($_POST['page'])) {
-        echo "<p>U heeft er voor gekozen om de pagina '$_POST[page]' te wijzigen.</p> <br>";
-        if ($_POST['page'] == 'Teams') {
-             echo "<form action='?module=edit' method='post' enctype='multipart/formdata'>
-                    <label for='team_name'>Team Naam</label>
+        $editpage = $_POST['page'];
+        echo "<p>U heeft er voor gekozen om de pagina '$editpage' te wijzigen.</p>";
+        if ($editpage == 'Teams') {
+            echo "
+                <form action='?module=edit' method='post' enctype='multipart/formdata'>
+                    <label for='team_name'>Welke team wilt u bewerken?</label>
                         <br>
-                    <input type='text' name='team_name' id='team_name' class='edit'>
+                    <select id='team_name' name='team'>";
+                        $teamName = $pdo->query("SELECT teamName FROM teams");
+                        $teams = $teamName->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($teams as $index => $team) {
+                            $team = $team['teamName'];
+                            echo "<option name='$team' value='$team'>$team</option>";
+                        }
+            echo    "</select>
+                        <br>
+                        <br>
+                    <label for='new_team_name'>Team Naam</label>
+                        <br>
+                    <input type='text' name='new_team_name' id='new_team_name' class='edit'>
                         <br>
                     <label for='captain'>Aanvoeder</label>
                         <br>
@@ -101,20 +116,88 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                     <input type='submit' name='edit_team' value='Wijzigen'>
                 </form>";
         } else {
-        echo "<form action='?module=edit' method='post' enctype='multipart/formdata'>
-                <label for='dataToEdit'>Wijzig tekst</label>
-                <textarea id='dataToEdit' name='dataToEdit'> </textarea>
-                    <br>
-                <lable for='change_img'>Wijzig de afbeeldingen</lable>
-                    <br>
-                <input type='file' id='change_img' name='change_img'>
-                    <br>
-                    <br>
-                <input type='submit' name='edit_page' value='Wijzigen'>
-            </form>";
+            $page = $_POST['page'];
+            echo "<form action='?module=edit' method='post' enctype='multipart/formdata'>
+                    <input type='hidden' name=page value='$page'>
+                    <label for='dataToEdit'>Wijzig tekst</label>
+                    <textarea id='dataToEdit' name='dataToEdit'></textarea>
+                        <br>
+                    <lable for='change_img'>Wijzig de afbeeldingen</lable>
+                        <br>
+                    <input type='file' id='change_img' name='change_img'>
+                        <br>
+                        <br>
+                    <input type='submit' name='edit_page' value='Wijzigen'>
+                </form>";
         }
     }
+}
+
+if (isset($_POST['edit-nav']) && !empty($_POST['new_nav_name']) || !empty($_POST['delete_nav'])) {
+    // HERE COMES THE NAVBAR EDIT FUNCTIONALITY
+    if (!empty($_POST['new_nav_name'])) {
+        try {
+            $sql = "UPDATE module SET pagina = '$_POST[new_nav_name]' WHERE pagina = '$_POST[pagina]';";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+
+            rename("./module/$_POST[pagina]", "./module/$_POST[new_nav_name]");
+
+            echo "<hr> <p>'$_POST[pagina]' succesvol gewijzigd in '$_POST[new_nav_name]'.</p>";
+
+        } catch (PDOException $e) {
+            echo "ERROR: " . $e->getMessage();
+        }
+    } elseif (isset($_POST['delete_nav'])) {
+        try {
+            $sql = "DELETE FROM module WHERE pagina = '$_POST[pagina]'";
     
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+
+            rmdir("./module/$_POST[pagina]");
+
+            echo "<hr> <p>'$_POST[pagina]' succesvol verwijderd.</p>";
+        } catch (PDOException $e) {
+            echo "ERROR: " . $e->getMessage();
+        }
+    }
+} 
+
+if (isset($_POST['edit_logo']) && !empty($_POST['change_logo'])) {
+    //HERE COMES THE LOGO EDIT FUNCTIONALITY
+}
+
+if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['dataToEdit']) || !empty($_POST['change_img']) || !empty($_POST['new_team_name']) || 
+    !empty($_POST['captain']) || !empty($_POST['team_info']) || !empty($_POST['team_img'])) {
+    // HERE COMES THE PAGE EDIT FUNCTIONALITY
+    if(isset($_POST['edit_page'])) {
+        try {
+            $sql = "UPDATE content JOIN module ON content.moduleID = module.moduleID SET content.page_content = '$_POST[dataToEdit]' WHERE module.pagina = '$_POST[page]';";
+    
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+
+            echo "<hr> <p>De data van de pagina $_POST[page] succesvol geüpdate.</p>";
+
+        } catch (PDOException $e) {
+            echo "ERROR: " . $e->getMessage();
+        }
+    } elseif (isset($_POST['edit_team'])) {
+        try {
+            $sql = "UPDATE teams SET teamName = '$_POST[new_team_name]', captain = '$_POST[captain]', teamData = '$_POST[team_info]', img = '$_POST[team_img]' 
+            WHERE teamName = '$_POST[team]'";
+    
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+
+            echo "<hr> <p>Team $_POST[team] succesvol geüpdate.</p>";
+        } catch (PDOException $e) {
+            echo "ERROR: " . $e->getMessage();
+        }
+    }
 }
 
 ?>
+
