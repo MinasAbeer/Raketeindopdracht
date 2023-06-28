@@ -151,12 +151,17 @@ if (isset($_POST['edit-nav']) && !empty($_POST['new_nav_name']) || !empty($_POST
         }
     } elseif (isset($_POST['delete_nav'])) {
         try {
-            $sql = "DELETE FROM module WHERE pagina = '$_POST[pagina]'";
+            $sql = "DELETE FROM content WHERE title = '$_POST[pagina]';";
     
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
+            $stmt = null;
 
-            rmdir("./module/$_POST[pagina]");
+            $stmt = $pdo->prepare("DELETE FROM module WHERE pagina = '$_POST[pagina]';");
+            $stmt->execute();
+            $stmt = null;
+
+            rrmdir("./module/$_POST[pagina]");
 
             echo "<hr> <p>'$_POST[pagina]' succesvol verwijderd.</p>";
         } catch (PDOException $e) {

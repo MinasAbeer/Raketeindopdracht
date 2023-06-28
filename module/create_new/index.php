@@ -35,8 +35,8 @@ if (!$user->isUserLoggedIn()) {
 if (isset($POST['createNew']) && !empty($_POST['titel']) || !empty($_FILES['img']) || !empty($_POST['content'])) {
     global $pdo;
     $pageTitle = $_POST['titel'];
-    $pageContent = $_POST['content'];
-    $img = $_FILES['img']['name'];
+    $pageContent = '<p>' . $_POST['content'] . '</p>';
+    $img = '<img src="' . $_FILES['img']['name'] . '" width="250" height="250">';
     
     $stmt = $pdo->prepare("INSERT INTO module (pagina) VALUES ('$pageTitle');");
     $stmt->execute();
@@ -46,8 +46,15 @@ if (isset($POST['createNew']) && !empty($_POST['titel']) || !empty($_FILES['img'
     $stmt = $pdo->prepare("INSERT INTO content (moduleID, title, page_content, img) VALUES ('$moduleId', '$pageTitle', '$pageContent', '$img');");
     $stmt->execute();
     $stmt = null;
+
+    $makeDir = mkdir("./module/$pageTitle", 0777);
+    $file = file_put_contents("./module/$pageTitle/index.php", $pageContent);
     
-    print_r("Het werkt");
+    if ($file) {
+        echo "<hr> <p>De nieuwe pagina is succesvol toegevoegd.</p>";
+    } else {
+        echo "<hr> <p>Er is iets misgegaan..</p>";
+    }
 }
 
 ?>
