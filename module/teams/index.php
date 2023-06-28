@@ -12,7 +12,7 @@ foreach ($res as $data) {
     $team .= '<tr>';
     $team .= '<td class="team"><a href="./index.php?module=teams&team=' . $data['teamName'] . '">' . $data['teamName'] . '</a>
     </td>';
-    $team .= '<td class="aanvoeder">Minas Abeer</td>';
+    $team .= '<td class="aanvoeder">' . $data['captain'] . '</td>';
     $team .= '</tr>';
 }
 

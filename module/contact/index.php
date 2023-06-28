@@ -1,6 +1,5 @@
 <?php
 
-
 $form = 
 '<form action="#" method="POST" class="contactForm">
     <input type="hidden" name="contactForm" value="1">
@@ -44,6 +43,7 @@ if (isset($_POST['contactForm']) && ($_POST['contactForm'] == '1')) { //
         throw new Exception('Er is iets fout gegaan');
     }
 } else {
+    getContent($_GET['module']);
     echo $form;
 }
 

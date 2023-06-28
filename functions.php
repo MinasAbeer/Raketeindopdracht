@@ -19,4 +19,16 @@
         }
     }
 
+    function getContent($page) 
+    {
+        global $pdo;
+
+        $data = $pdo->query("SELECT content.page_content, content.img FROM content JOIN module ON content.moduleID = module.moduleID WHERE module.pagina = '$page';");
+        $res = $data->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($res as $index => $row) {
+            echo $row['page_content'];
+        }
+    }
+
 ?>
