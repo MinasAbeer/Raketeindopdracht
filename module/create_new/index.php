@@ -30,3 +30,24 @@ if (!$user->isUserLoggedIn()) {
     <input type="submit" name="createNew" value="Toevoegen">
 </form>
 
+<?php
+
+if (isset($POST['createNew']) && !empty($_POST['titel']) || !empty($_FILES['img']) || !empty($_POST['content'])) {
+    global $pdo;
+    $pageTitle = $_POST['titel'];
+    $pageContent = $_POST['content'];
+    $img = $_FILES['img']['name'];
+    
+    $stmt = $pdo->prepare("INSERT INTO module (pagina) VALUES ('$pageTitle');");
+    $stmt->execute();
+    $moduleId = $pdo->lastInsertId();
+    $stmt = null;
+    
+    $stmt = $pdo->prepare("INSERT INTO content (moduleID, title, page_content, img) VALUES ('$moduleId', '$pageTitle', '$pageContent', '$img');");
+    $stmt->execute();
+    $stmt = null;
+    
+    print_r("Het werkt");
+}
+
+?>
