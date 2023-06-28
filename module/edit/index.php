@@ -69,7 +69,7 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                 <input type='submit' name='edit-nav' value='Wijzigen'> 
              </form>";
     } elseif (isset($_POST['logo'])) {
-        echo "<form action='?module=edit' method='post' enctype='multipart/formdata'>
+        echo "<form action='?module=edit' method='post' enctype='multipart/form-data'>
                 <label for='change_logo'>Selecteer het nieuwe logo.</label>
                     <br>
                 <input type='file' id='change_logo' name='change_logo'>
@@ -165,8 +165,40 @@ if (isset($_POST['edit-nav']) && !empty($_POST['new_nav_name']) || !empty($_POST
     }
 } 
 
-if (isset($_POST['edit_logo']) && !empty($_POST['change_logo'])) {
+if (isset($_POST['edit_logo']) && !empty($_FILES['change_logo'])) {
     //HERE COMES THE LOGO EDIT FUNCTIONALITY
+    $targetDir = "./img/";
+    $targetFile = $targetDir . basename($_FILES["change_logo"]['name']);
+    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+    if (isset($_POST['edit_logo'])) {
+        $check = getimagesize($_FILES['change_logo']['tmp_name']);
+        if ($check !== false) {
+            $upload = 1;
+        } else {
+            echo "Het bestand is geen afbeelding";
+            $upload = 0;
+        }
+    }
+
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
+        echo "Sorry alleen JPG, JPEG, PNG bestanden zijn toegestaan.";
+        $uploadOk = 0;
+    }
+    
+    if ($upload = 1) {
+        if (move_uploaded_file($_FILES['change_logo']['tmp_name'], $targetFile)) {
+            $sql = "UPDATE logo SET logoPath = '$targetFile';";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            echo "<hr> <p>Het bestand " . htmlspecialchars(basename($_FILES['change_logo']['name'])) . " is geüpload.</p>";
+
+        } else {
+            echo "<p>Er is iets fout gegaan met het uploaden van het bestand.</p>";
+        }
+    } else {
+        echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
+    }
 }
 
 if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['dataToEdit']) || !empty($_POST['change_img']) || !empty($_POST['new_team_name']) || 
@@ -192,6 +224,8 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
 
+            if (!empty($_FILES['']))
+            
             echo "<hr> <p>Team $_POST[team] succesvol geüpdate.</p>";
         } catch (PDOException $e) {
             echo "ERROR: " . $e->getMessage();

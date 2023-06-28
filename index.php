@@ -2,11 +2,11 @@
 
 session_start();
 require_once 'config.php';
-require_once 'functions.php';
 require_once 'classes/account.cls.php';
 
 $backend = false;
 $user = new Account();
+global $pdo;
 
 if (isset($_GET['module'])) { 
     if (!empty($_GET['module'])) { 
@@ -20,6 +20,8 @@ if (isset($_GET['module'])) {
     }
 } 
 
+$logocolumn = $pdo->query("SELECT logoPath FROM logo");
+$logoPath = $logocolumn->fetch(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -37,14 +39,13 @@ if (isset($_GET['module'])) {
         <header>
             <div class="img">
                 <a href="./">
-                    <img src="img/logo.webp" width="125" height="125">
+                    <img src="<?= $logoPath['logoPath']; ?>" width="125" height="125">
                 </a>
             </div>
             <div class="navbar">
                 
                 <nav>
                     <?php 
-                    global $pdo;
 
                     $sql = "SELECT pagina FROM module";
                     $module_query = $pdo->query($sql);
