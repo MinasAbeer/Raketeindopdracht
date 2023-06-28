@@ -27,7 +27,7 @@
         $res = $data->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($res as $index => $row) {
-            echo $row['page_content'];
+            echo '<p>' . $row['page_content'] . '</p>';
         }
     }
 
