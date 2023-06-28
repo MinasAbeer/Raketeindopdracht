@@ -185,7 +185,7 @@ if (isset($_POST['edit_logo']) && !empty($_FILES['change_logo'])) {
         echo "Sorry alleen JPG, JPEG, PNG bestanden zijn toegestaan.";
         $uploadOk = 0;
     }
-    
+
     if ($upload = 1) {
         if (move_uploaded_file($_FILES['change_logo']['tmp_name'], $targetFile)) {
             $sql = "UPDATE logo SET logoPath = '$targetFile';";
@@ -218,13 +218,14 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
         }
     } elseif (isset($_POST['edit_team'])) {
         try {
-            $sql = "UPDATE teams SET teamName = '$_POST[new_team_name]', captain = '$_POST[captain]', teamData = '$_POST[team_info]', img = '$_POST[team_img]' 
-            WHERE teamName = '$_POST[team]'";
+            $sql = "UPDATE teams SET teamName = '$_POST[new_team_name]', captain = '$_POST[captain]', teamData = '$_POST[team_info]',
+            img = '$_FILES[team_img]' WHERE teamName = '$_POST[team]'";
+
+            rename("./module/teams/team_img/$_POST[team]", "./module/teams/team_img/$_POST[new_team]");
     
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-
-            if (!empty($_FILES['']))
+            
             
             echo "<hr> <p>Team $_POST[team] succesvol geüpdate.</p>";
         } catch (PDOException $e) {
