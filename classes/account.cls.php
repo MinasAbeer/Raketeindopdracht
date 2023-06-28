@@ -45,7 +45,6 @@ class account
             }
         } else {
             echo "Gebruikersnaam is onjuist!";
-
         }
         return false;
     }

@@ -1,16 +1,15 @@
 <?php
 
-
 $form = 
 '<form action="#" method="POST" class="contactForm">
     <input type="hidden" name="contactForm" value="1">
    <label for="name"> Naam: </label>
    <br />
-   <input required="" type="text" name="name" id="name" />
+   <input required="" type="text" name="name" id="name" class="contant_name"/>
    <br />
    <label for="email"> Email: </label>
    <br />
-   <input required="" type="email" name="email" id="email" />
+   <input required="" type="email" name="email" id="email" class="contant_email"/>
    <br />
    <label for="message"> Bericht: </label>
    <br />
@@ -44,6 +43,7 @@ if (isset($_POST['contactForm']) && ($_POST['contactForm'] == '1')) { //
         throw new Exception('Er is iets fout gegaan');
     }
 } else {
+    getContent($_GET['module']);
     echo $form;
 }
 

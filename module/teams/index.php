@@ -6,14 +6,14 @@ $data = $pdo->query("SELECT * FROM teams");
 $res = $data->fetchAll();
 
 
-$moduleNav = '';
+$team = '';
 
 foreach ($res as $data) { 
-    $moduleNav .= '<tr>';
-    $moduleNav .= '<td class="team"><a href="./index.php?module=teams&team=' . $data['teamName'] . '">' . $data['teamName'] . '</a>
+    $team .= '<tr>';
+    $team .= '<td class="team"><a href="./index.php?module=teams&team=' . $data['teamName'] . '">' . $data['teamName'] . '</a>
     </td>';
-    $moduleNav .= '<td class="aanvoeder">Minas Abeer</td>';
-    $moduleNav .= '</tr>';
+    $team .= '<td class="aanvoeder">' . $data['captain'] . '</td>';
+    $team .= '</tr>';
 }
 
 ?>
@@ -25,7 +25,7 @@ foreach ($res as $data) {
         <th> Team</th>
         <th> Aanvoeder </th>
     </tr>
-    <?= $moduleNav ?>
+    <?= $team ?>
 </table>
 
 <?php
