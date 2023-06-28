@@ -60,7 +60,7 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                 echo "</select>
                     <br>
                 <label for='in_wat'>In wat wilt u het wijzigen?</label>
-                <input type='text' name='new_nav_name' id='in_wat' class='edit'>
+                <input type='text' name='new_nav_name' id='in_wat' class='modify'>
                     <br>
                 <input type='checkbox' name='delete_nav' id='delete_nav'>
                 <label for='delete_nav'>Verwijderen</label>
@@ -98,11 +98,11 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                         <br>
                     <label for='new_team_name'>Team Naam</label>
                         <br>
-                    <input type='text' name='new_team_name' id='new_team_name' class='edit'>
+                    <input type='text' name='new_team_name' id='new_team_name' class='modify'>
                         <br>
                     <label for='captain'>Aanvoeder</label>
                         <br>
-                    <input type='text' name='captain' id='captain' class='edit'>
+                    <input type='text' name='captain' id='captain' class='modify'>
                         <br>
                     <label for='team_info'>Team infromatie</label>
                         <br>
@@ -151,12 +151,17 @@ if (isset($_POST['edit-nav']) && !empty($_POST['new_nav_name']) || !empty($_POST
         }
     } elseif (isset($_POST['delete_nav'])) {
         try {
-            $sql = "DELETE FROM module WHERE pagina = '$_POST[pagina]'";
+            $sql = "DELETE FROM content WHERE title = '$_POST[pagina]';";
     
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
+            $stmt = null;
 
-            rmdir("./module/$_POST[pagina]");
+            $stmt = $pdo->prepare("DELETE FROM module WHERE pagina = '$_POST[pagina]';");
+            $stmt->execute();
+            $stmt = null;
+
+            rrmdir("./module/$_POST[pagina]");
 
             echo "<hr> <p>'$_POST[pagina]' succesvol verwijderd.</p>";
         } catch (PDOException $e) {
