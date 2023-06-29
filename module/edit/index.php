@@ -270,7 +270,7 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
             // prepare the query
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
-            
+
             rename("$oldImg", "$teamImg");
 
             $targetDir = "./module/teams/team_img/$_POST[new_team_name]";
@@ -288,7 +288,7 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
                 echo "Sorry alleen JPG, JPEG, PNG en WEBP bestanden zijn toegestaan.";
                 $upload = 0;
             }
-            
+
             if ($upload = 1) {
                 if (move_uploaded_file($_FILES['team_img']['tmp_name'], $targetFile)) {
                     $sql = "UPDATE teams SET img = '$targetFile' WHERE teamName = '$_POST[new_team_name]';";
@@ -301,7 +301,7 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
             } else {
                 echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
             }
-            
+
             echo "<hr> <p>Team $_POST[team] succesvol geüpdate.</p>";
         } catch (PDOException $e) {
             echo "ERROR: " . $e->getMessage();

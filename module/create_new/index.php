@@ -16,11 +16,11 @@ if (!$user->isUserLoggedIn()) {
 <form action="?module=create_new" method="post" enctype="multipart/form-data">
     <lable for="titel">Titel: </lable>
         <br>
-    <input type="text" name="titel" id="titel" class="modify">
+    <input type="text" name="titel" id="titel" class="modify" required>
         <br>
     <label for="img">Foto's: </label>
         <br>
-    <input type="file" name="img" id="img" class="modify">
+    <input type="file" name="img" id="img" class="modify" required>
         <br>
     <label for="content">Tekst: </label>
         <br>
@@ -32,30 +32,71 @@ if (!$user->isUserLoggedIn()) {
 
 <?php
 
-if (isset($POST['createNew']) && !empty($_POST['titel']) || !empty($_FILES['img']) || !empty($_POST['content'])) {
+if (isset($POST['createNew']) && !empty($_POST['titel']) && !empty($_FILES['img']) && !empty($_POST['content'])) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
     global $pdo;
     $pageTitle = $_POST['titel'];
     $pageContent = '<p>' . $_POST['content'] . '</p>';
-    $fileContent = "<?php getContent('$pageTitle'); ?>";
-    $img = '<img src="' . $_FILES['img']['name'] . '" width="250" height="250">';
-    
+    $imgPath = "./module/$pageTitle";
     $stmt = $pdo->prepare("INSERT INTO module (pagina) VALUES ('$pageTitle');");
     $stmt->execute();
     $moduleId = $pdo->lastInsertId();
     $stmt = null;
     
-    $stmt = $pdo->prepare("INSERT INTO content (moduleID, title, page_content, img) VALUES ('$moduleId', '$pageTitle', '$pageContent', '$img');");
+    $stmt = $pdo->prepare("INSERT INTO content (moduleID, title, page_content, img) VALUES ('$moduleId', '$pageTitle', '$pageContent', '$imgPath');");
     $stmt->execute();
     $stmt = null;
 
-    $makeDir = mkdir("./module/$pageTitle", 0777);
-    $file = file_put_contents("./module/$pageTitle/index.php", $fileContent);
+    ob_start();
+    getContent($pageTitle);
+    $fileContent = ob_get_clean();
     
-    if ($file) {
-        echo "<hr> <p>De nieuwe pagina is succesvol toegevoegd.</p>";
-    } else {
-        echo "<hr> <p>Er is iets misgegaan..</p>";
+    $fileImg = "<img src='./module/$pageTitle/" . $_FILES['img']['name'] . "' width='250' height='250'>";
+    $contentArr = array(
+        "content" => $fileContent,
+        "img" => $fileImg
+    );
+    // var_dump($contentArr);
+
+    if (!is_dir($imgPath)) {
+        mkdir($imgPath, 0777, true);
     }
+
+    file_put_contents("./module/$pageTitle/index.php", $pageContent . $fileImg, FILE_APPEND);
+
+    $targetDir = "./module/$pageTitle/";
+    $targetFile = $targetDir . basename($_FILES["img"]['name']);
+    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+    if (isset($_POST['createNew'])) {
+        $check = getimagesize($_FILES['img']['tmp_name']);
+        if ($check !== false) {
+            $upload = 1;
+        } else {
+            echo "Het bestand is geen afbeelding";
+            $upload = 0;
+        }
+    }
+
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
+        echo "Sorry alleen JPG, JPEG, PNG bestanden zijn toegestaan.";
+        $upload = 0;
+    }
+
+    if ($upload = 1) {
+        if (move_uploaded_file($_FILES['img']['tmp_name'], $targetFile)) {
+            $sql = "UPDATE logo SET logoPath = '$targetFile';";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            echo "<hr> <p>Het bestand " . htmlspecialchars(basename($_FILES['img']['name'])) . " is geüpload.</p>";
+        } else {
+            echo "<p>Er is iets fout gegaan met het uploaden van het bestand.</p>";
+        }
+    } else {
+        echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
+    }
+    
 }
 
 ?>

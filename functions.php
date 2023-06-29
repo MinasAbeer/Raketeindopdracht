@@ -23,17 +23,20 @@
     {
         global $pdo;
 
-        $data = $pdo->query("SELECT content.page_content, content.img FROM content JOIN module ON content.moduleID = module.moduleID WHERE module.pagina = '$page';");
-        $res = $data->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($res as $index => $row) {
-            echo '<p>' . $row['page_content'] . '</p>';
-            if (isset($row['img'])) {
-                echo "<img src='$row[img]' width='125' height='125'>";
-            } else {
-                echo "no image";
-            }
+        $stmt = $pdo->prepare("SELECT page_content FROM content JOIN module ON content.moduleID = module.moduleID WHERE module.pagina = :page");
+        $stmt->bindParam(':page', $page);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result === false) {
+            echo "<p>No content found for $page</p>";
+            return;
         }
+
+        $content = $result['page_content'];
+
+        echo $content;
     }
 
     function rrmdir($src) {
