@@ -82,7 +82,7 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
         echo "<p>U heeft er voor gekozen om de pagina '$editpage' te wijzigen.</p>";
         if ($editpage == 'Teams') {
             echo "
-                <form action='?module=edit' method='post' enctype='multipart/formdata'>
+                <form action='?module=edit' method='post' enctype='multipart/form-data'>
                     <label for='team_name'>Welke team wilt u bewerken?</label>
                         <br>
                     <select id='team_name' name='team'>";
@@ -117,7 +117,7 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
                 </form>";
         } else {
             $page = $_POST['page'];
-            echo "<form action='?module=edit' method='post' enctype='multipart/formdata'>
+            echo "<form action='?module=edit' method='post' enctype='multipart/form-data'>
                     <input type='hidden' name=page value='$page'>
                     <label for='dataToEdit'>Wijzig tekst</label>
                     <textarea id='dataToEdit' name='dataToEdit'></textarea>
@@ -207,6 +207,9 @@ if (isset($_POST['edit_logo']) && !empty($_FILES['change_logo'])) {
 
 if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['dataToEdit']) || !empty($_POST['change_img']) || !empty($_POST['new_team_name']) || 
     !empty($_POST['captain']) || !empty($_POST['team_info']) || !empty($_POST['team_img'])) {
+        var_dump($_FILES);
+        var_dump($_POST);
+        exit;
     // HERE COMES THE PAGE EDIT FUNCTIONALITY
     if(isset($_POST['edit_page'])) {
         try {
