@@ -91,7 +91,7 @@ if (isset($_POST['wijzigen']) && isset($_POST['nav']) || isset($_POST['logo']) |
 
                         foreach ($teams as $index => $team) {
                             $team = $team['teamName'];
-                            echo "<option name='$team' value='$team'>$team</option>";
+                            echo "<option value='$team'>$team</option>";
                         }
             echo    "</select>
                         <br>
@@ -207,9 +207,6 @@ if (isset($_POST['edit_logo']) && !empty($_FILES['change_logo'])) {
 
 if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['dataToEdit']) || !empty($_POST['change_img']) || !empty($_POST['new_team_name']) || 
     !empty($_POST['captain']) || !empty($_POST['team_info']) || !empty($_POST['team_img'])) {
-        var_dump($_FILES);
-        var_dump($_POST);
-        exit;
     // HERE COMES THE PAGE EDIT FUNCTIONALITY
     if(isset($_POST['edit_page'])) {
         try {
@@ -225,42 +222,49 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
         }
     } elseif (isset($_POST['edit_team'])) {
         try {
+            $team = $_POST['team'];
+            $selectOldImg = $pdo->query("SELECT img FROM teams WHERE teamName = '$team';");
+            $fetchOldImg = $selectOldImg->fetch(PDO::FETCH_ASSOC);
+            $oldImg = $fetchOldImg['img'];
+            
+
+            $teamImg = "./module/teams/team_img/$_POST[team]/" . $_FILES['team_img']['name'] ;
             $sql = "UPDATE teams SET teamName = '$_POST[new_team_name]', captain = '$_POST[captain]', teamData = '$_POST[team_info]',
-            img = '$_POST[team_img]' WHERE teamName = '$_POST[team]'";
+            img = '$teamImg' WHERE teamName = '$team';";
             // prepare the query
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
             
-            // rename("./module/teams/team_img/$_POST[team]", "./module/teams/team_img/$_POST[new_team_name]");
+            rename("$oldImg", "$teamImg");
+
+            $targetDir = "./module/teams/team_img/$_POST[new_team_name]";
+            $targetFile = $targetDir . basename($_FILES['team_img']['name']);
+            $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+            $check = getimagesize($_FILES['team_img']['tmp_name']);
+            if ($check !== false) {
+                $upload = 1;
+            } else {
+                echo "Het bestand is geen afbeelding";
+                $upload = 0;
+            }
+
+            if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
+                echo "Sorry alleen JPG, JPEG, PNG en WEBP bestanden zijn toegestaan.";
+                $upload = 0;
+            }
             
-            // $targetDir = "./module/teams/team_img/$_POST[new_team_name]";
-            // $targetFile = $targetDir . basename($_FILES['team_img']['name']);
-            // $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-            // $check = getimagesize($_FILES['team_img']['tmp_name']);
-            // if ($check !== false) {
-            //     $upload = 1;
-            // } else {
-            //     echo "Het bestand is geen afbeelding";
-            //     $upload = 0;
-            // }
-
-            // if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
-            //     echo "Sorry alleen JPG, JPEG, PNG en WEBP bestanden zijn toegestaan.";
-            //     $upload = 0;
-            // }
-
-            // if ($upload = 1) {
-            //     if (move_uploaded_file($_FILES['team_img']['tmp_name'], $targetFile)) {
-            //         $sql = "UPDATE teams SET img = '$targetFile';";
-            //         $stmt = $pdo->prepare($sql);
-            //         $stmt->execute();
-            //         echo "<hr> <p>Het bestand " . htmlspecialchars(basename($_FILES['change_logo']['name'])) . " is geüpload.</p>";
-            //     } else {
-            //         echo "<p>Er is iets fout gegaan met het uploaden van het bestand.</p>";
-            //     }
-            // } else {
-            //     echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
-            // }
+            if ($upload = 1) {
+                if (move_uploaded_file($_FILES['team_img']['tmp_name'], $targetFile)) {
+                    $sql = "UPDATE teams SET img = '$targetFile' WHERE teamName = '$_POST[new_team_name]';";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute();
+                    echo "<hr> <p>Het bestand " . htmlspecialchars(basename($_FILES['team_img']['name'])) . " is geüpload.</p>";
+                } else {
+                    echo "<p>Er is iets fout gegaan met het uploaden van het bestand.</p>";
+                }
+            } else {
+                echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
+            }
             
             echo "<hr> <p>Team $_POST[team] succesvol geüpdate.</p>";
         } catch (PDOException $e) {
