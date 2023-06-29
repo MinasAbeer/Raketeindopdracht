@@ -12,7 +12,7 @@
         foreach ($res as $row) {
             echo  "<p>" . $row['teamData'] . "</p>";
             if (isset($row["img"])) {
-                echo "<img src='$row[img]' width='125' height='125'>";
+                echo "<img src='img/$row[img]' width='125' height='125'>";
             } else {
                 echo "No image";
             }
@@ -28,6 +28,11 @@
         
         foreach ($res as $index => $row) {
             echo '<p>' . $row['page_content'] . '</p>';
+            if (isset($row['img'])) {
+                echo "<img src='$row[img]' width='125' height='125'>";
+            } else {
+                echo "no image";
+            }
         }
     }
 

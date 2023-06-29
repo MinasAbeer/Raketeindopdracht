@@ -188,7 +188,7 @@ if (isset($_POST['edit_logo']) && !empty($_FILES['change_logo'])) {
 
     if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
         echo "Sorry alleen JPG, JPEG, PNG bestanden zijn toegestaan.";
-        $uploadOk = 0;
+        $upload = 0;
     }
 
     if ($upload = 1) {
@@ -210,13 +210,50 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
     // HERE COMES THE PAGE EDIT FUNCTIONALITY
     if(isset($_POST['edit_page'])) {
         try {
-            $sql = "UPDATE content JOIN module ON content.moduleID = module.moduleID SET content.page_content = '$_POST[dataToEdit]' WHERE module.pagina = '$_POST[page]';";
+            $stmt= $pdo->prepare("SELECT module.pagina FROM module JOIN content ON module.moduleID = content.moduleID");
+            $stmt->execute();
+            $stmt = null;
+            $img = "./module/$page/" . $_FILES['change_img']['name'];
+            $sql = "UPDATE content JOIN module ON content.moduleID = module.moduleID SET content.page_content = '$_POST[dataToEdit]', content.img = '$img' WHERE module.pagina = '$_POST[page]';";
     
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
+            $stmt = null;
+
+
+            $targetDir = "./module/$page/";
+            $targetFile = $targetDir . basename($_FILES["change_img"]['name']);
+            $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+            if (isset($_POST['edit_page'])) {
+                $check = getimagesize($_FILES['change_img']['tmp_name']);
+                if ($check !== false) {
+                    $upload = 1;
+                } else {
+                    echo "Het bestand is geen afbeelding";
+                    $upload = 0;
+                }
+            }
+
+            if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "webp") {
+                echo "Sorry alleen JPG, JPEG, PNG bestanden zijn toegestaan.";
+                $upload = 0;
+            }
+
+            if ($upload = 1) {
+                if (move_uploaded_file($_FILES['change_img']['tmp_name'], $targetFile)) {
+                    $sql = "UPDATE content SET img = '$targetFile';";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute();
+                    echo "<hr> <p>Het bestand " . htmlspecialchars(basename($_FILES['change_img']['name'])) . " is geüpload.</p>";
+                } else {
+                    echo "<p>Er is iets fout gegaan met het uploaden van het bestand.</p>";
+                }
+            } else {
+                echo "<p>Sorry het bestand kan niet geüpload worden.</p>";
+            }
 
             echo "<hr> <p>De data van de pagina $_POST[page] succesvol geüpdate.</p>";
-
         } catch (PDOException $e) {
             echo "ERROR: " . $e->getMessage();
         }
@@ -226,7 +263,6 @@ if (isset($_POST['edit_page']) || isset($_POST['edit_team']) && !empty($_POST['d
             $selectOldImg = $pdo->query("SELECT img FROM teams WHERE teamName = '$team';");
             $fetchOldImg = $selectOldImg->fetch(PDO::FETCH_ASSOC);
             $oldImg = $fetchOldImg['img'];
-            
 
             $teamImg = "./module/teams/team_img/$_POST[team]/" . $_FILES['team_img']['name'] ;
             $sql = "UPDATE teams SET teamName = '$_POST[new_team_name]', captain = '$_POST[captain]', teamData = '$_POST[team_info]',
